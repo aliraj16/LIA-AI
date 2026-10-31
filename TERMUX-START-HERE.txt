@@ -1,0 +1,59 @@
+MILI AI — TERMUX QUICK START
+============================
+
+IMPORTANT
+- This is the Android source project, not a prebuilt APK.
+- Many Android SDK build-tools are not runnable on ordinary ARM Android/Termux.
+- Recommended phone-only APK build: use the included GitHub Actions workflow.
+- The Admin Panel is a separate Node.js service. For remote use deploy it on HTTPS hosting.
+- Voice Match UI is experimental; it is NOT secure speaker biometrics and must not be treated as owner authentication.
+
+A) EXTRACT
+1. Download this ZIP to your phone's Download folder.
+2. In Termux:
+   termux-setup-storage
+   pkg update -y
+   pkg install unzip openjdk-17 nodejs-lts git -y
+   mkdir -p ~/MILI-AI
+   unzip /sdcard/Download/MILI-AI-Termux-Project.zip -d ~/MILI-AI
+   cd ~/MILI-AI/lia-ai-master
+
+B) TRY LOCAL APK BUILD (only if Android SDK is installed and compatible)
+   chmod +x gradlew scripts/build-apk.sh
+   ./scripts/build-apk.sh
+If ANDROID_HOME/SDK or build-tools are missing, use GitHub Actions below.
+
+C) BUILD APK FROM YOUR PHONE WITH GITHUB ACTIONS
+1. Create a PRIVATE repository on GitHub.
+2. Upload the extracted lia-ai-master project (all files, including hidden .github).
+3. Open Actions > Build MILI AI APK > Run workflow.
+4. Download the generated APK artifact from the completed workflow run.
+
+D) RUN ADMIN PANEL LOCALLY FOR TESTING
+   cd ~/MILI-AI/lia-ai-master/admin-panel
+   export ADMIN_USER=aliraj
+   export ADMIN_PASSWORD='MAKE-A-UNIQUE-PASSWORD-AT-LEAST-12-CHARS'
+   export TOKEN_SECRET="$(openssl rand -hex 32)"
+   node server.js
+Open http://127.0.0.1:8787 in the same phone browser.
+
+E) REMOTE ADMIN PANEL
+Deploy admin-panel/ on a Node.js host with persistent disk and HTTPS.
+Set ADMIN_USER, ADMIN_PASSWORD, TOKEN_SECRET and PORT as environment variables.
+Do not expose the local HTTP test server to the public internet.
+
+F) API ENDPOINTS
+GET  /api/health
+POST /api/login
+GET  /api/public-config
+GET  /api/config                 (admin token)
+PUT  /api/config                 (admin token)
+GET  /api/licenses               (admin token)
+POST /api/licenses               (admin token)
+POST /api/activation-request     (app/client)
+POST /api/license/check          (app/client)
+POST /api/requests/:id/approve   (admin token)
+POST /api/requests/:id/reject    (admin token)
+POST /api/licenses/:id/revoke    (admin token)
+
+See README.md and admin-panel/README.md for feature status and security notes.
